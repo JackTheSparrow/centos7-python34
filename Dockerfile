@@ -1,14 +1,15 @@
 FROM centos:centos7
-MAINTAINER Dinara Aleskarova <dinara.aleskarova@simbirsoft.com>
+LABEL maintainer "Dinara Aleskarova <dinara.aleskarova@simbirsoft.com>"
 
-RUN yum -y update
-RUN yum -y install epel-release git
-RUN yum -y install python34
-RUN curl -O https://bootstrap.pypa.io/get-pip.py && /usr/bin/python3.4 get-pip.py
-RUN pip install git+https://github.com/boakley/robotframework-lint.git
+RUN yum -y update \
+    && yum -y install epel-release git \
+    && yum -y install python34 python34-pip \
+    && yum clean all \
+    && useradd -d /opt/linter -s /bin/bash linter \
+    && pip3 install -U pip && pip install git+https://github.com/boakley/robotframework-lint.git
 
+USER linter
 
-ADD . /src
-RUN cd /src
+VOLUME /test
 
-CMD ["bin/bash"]
+CMD ["rflint", "/test"]
